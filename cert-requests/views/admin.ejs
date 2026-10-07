@@ -1,0 +1,18 @@
+<%- include('partials/head', {title:'Registrar'}) %>
+<main class="wide">
+  <h2>Certificate Requests <small id="live" style="font-size:.75rem;color:#16a34a">● Live</small></h2>
+  <div id="tbl"><%- include('partials/table', { rows }) %></div>
+</main>
+<script>
+  const live = document.getElementById('live'), tbl = document.getElementById('tbl');
+  async function refresh() {
+    if (tbl.contains(document.activeElement) && document.activeElement.tagName === 'SELECT') return; // don't disturb an open dropdown
+    const r = await fetch('/admin/table');
+    if (r.ok) tbl.innerHTML = await r.text();
+  }
+  const es = new EventSource('/admin/events');
+  es.onmessage = refresh;
+  es.onopen = () => { live.textContent = '● Live'; live.style.color = '#16a34a'; refresh(); };
+  es.onerror = () => { live.textContent = '○ Reconnecting…'; live.style.color = '#b45309'; };
+</script>
+</body></html>

@@ -1,0 +1,23 @@
+<table>
+  <tr><th>Ref</th><th>Student</th><th>Certificate</th><th>Amount</th><th>Payment</th><th>Status</th><th>Update</th></tr>
+  <% rows.forEach(r => { const awaiting = ['pending_payment','for_verification'].includes(r.status); %>
+  <tr>
+    <td><%= r.reference_no %><br><small><%= new Date(r.created_at).toLocaleString() %></small></td>
+    <td><%= r.student_name %><br><small><%= r.student_id %> · <%= r.email %></small></td>
+    <td><%= r.type_name %> ×<%= r.copies %><br><small><%= r.purpose %></small></td>
+    <td>₱<%= Number(r.amount).toFixed(2) %></td>
+    <td><% if (r.status === 'cancelled') { %>—
+      <% } else if (awaiting) { %><span class="badge pending_payment">⏳ Pending</span>
+      <% } else { %><span class="badge paid">✔ Paid</span><br><small><%= r.paid_at ? new Date(r.paid_at).toLocaleString() : '' %></small><% } %></td>
+    <td><span class="badge <%= r.status %>"><%= r.status.replace('_',' ') %></span>
+      <% if (r.payment_reference) { %><br><small><%= r.payment_method %>: <b><%= r.payment_reference %></b></small><% } %></td>
+    <td><% if (r.status === 'for_verification') { %>
+        <form method="post" action="/admin/<%= r.id %>/confirm"><button>Confirm</button></form>
+        <form method="post" action="/admin/<%= r.id %>/reject"><button>Reject</button></form>
+      <% } else if (r.status !== 'pending_payment') { %>
+        <form method="post" action="/admin/<%= r.id %>/status">
+          <select name="status"><% ['processing','ready','released','cancelled'].forEach(s => { %>
+            <option <%= s===r.status?'selected':'' %>><%= s %></option><% }) %></select><button>Save</button>
+        </form><% } %></td>
+  </tr><% }) %>
+</table>

@@ -1,0 +1,27 @@
+<%- include('partials/head', {title:'Request Status'}) %>
+<main>
+  <h2>Request <%= r.reference_no %></h2>
+  <p><span class="badge <%= r.status %>"><%= r.status.replace('_',' ') %></span></p>
+  <p><b><%= r.type_name %></b> × <%= r.copies %> — ₱<%= Number(r.amount).toFixed(2) %></p>
+  <p>For: <%= r.student_name %> (<%= r.student_id %>)</p>
+  <% if (msg) { %><p class="err"><%= msg %></p><% } %>
+  <% if (r.status === 'pending_payment' && MODE === 'manual') { %>
+    <h3>How to pay</h3>
+    <p>Send <b>₱<%= Number(r.amount).toFixed(2) %></b> by GCash to <b><%= pay.name %></b> (<b><%= pay.no %></b>), or pay at the school cashier.</p>
+    <p><%= pay.note %> Your request number: <b><%= r.reference_no %></b></p>
+    <form method="post" action="/status/<%= r.reference_no %>/payment">
+      <label>Paid via</label>
+      <select name="payment_method"><option value="gcash">GCash</option><option value="cashier">Cashier (Official Receipt)</option></select>
+      <label>GCash reference no. / OR no.</label>
+      <input name="payment_reference" required minlength="6" maxlength="60">
+      <button>Submit Payment Details</button>
+    </form>
+  <% } else if (r.status === 'pending_payment') { %>
+    <p>Payment not received yet.</p><a href="/pay/<%= r.reference_no %>"><button>Pay Now</button></a>
+  <% } else if (r.status === 'for_verification') { %>
+    <p>Payment details submitted (<%= r.payment_reference %>). The registrar will verify it shortly.</p>
+  <% } else if (r.status === 'paid') { %><p>Payment confirmed. The registrar will process your request.</p>
+  <% } else if (r.status === 'ready') { %><p>Your certificate is ready for pickup.</p><% } %>
+  <p>Keep your reference number to check status anytime.</p>
+  <% if (r.status === 'pending_payment' && MODE === 'paymongo') { %><script>setTimeout(() => location.reload(), 5000)</script><% } %>
+</main></body></html>

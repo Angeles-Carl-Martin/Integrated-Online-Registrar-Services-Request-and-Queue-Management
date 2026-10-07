@@ -1,0 +1,18 @@
+<%- include('partials/head', {title:'Request a Certificate'}) %>
+<main>
+  <h2>Request a Certificate</h2>
+  <% if (error) { %><p class="err"><%= error %></p><% } %>
+  <form method="post" action="/request">
+    <label>Student ID</label><input name="student_id" required>
+    <label>Full Name</label><input name="student_name" required>
+    <label>Email</label><input type="email" name="email" required>
+    <label>Contact Number</label><input name="contact">
+    <label>Certificate</label>
+    <select name="certificate_type_id" required>
+      <% types.forEach(t => { %><option value="<%= t.id %>"><%= t.name %> — ₱<%= Number(t.fee).toFixed(2) %></option><% }) %>
+    </select>
+    <label>Copies</label><input type="number" name="copies" min="1" max="10" value="1">
+    <label>Purpose</label><textarea name="purpose" rows="2" required></textarea>
+    <button>Proceed to Payment</button>
+  </form>
+</main></body></html>
